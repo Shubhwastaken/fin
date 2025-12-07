@@ -18,8 +18,8 @@ export default function AssetAllocationChart({ data }: AssetAllocationChartProps
   }));
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-4">Asset Allocation</h3>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Asset Allocation</h3>
       
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
@@ -49,8 +49,8 @@ export default function AssetAllocationChart({ data }: AssetAllocationChartProps
               style={{ backgroundColor: COLORS[index % COLORS.length] }}
             />
             <div className="flex-1">
-              <div className="text-sm font-medium">{item.asset_class}</div>
-              <div className="text-xs text-gray-600">
+              <div className="text-sm font-medium text-gray-900 dark:text-white">{item.asset_class}</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">
                 {formatCurrency(item.current_value)} ({item.percentage.toFixed(1)}%)
               </div>
             </div>

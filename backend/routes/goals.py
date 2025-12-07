@@ -12,17 +12,17 @@ router = APIRouter(prefix="/api/goals", tags=["goals"])
 
 @router.get("/", response_model=List[GoalWithCalculations])
 def get_all_goals(
-    current_user: User = Depends(get_current_user),
+    user_id: int = 1,
     db: Session = Depends(get_db)
 ):
     """Get all goals for the current user with calculated metrics"""
     goal_service = GoalService(db)
-    return goal_service.get_all_goals_summary(current_user.user_id)
+    return goal_service.get_all_goals_summary(user_id)
 
 @router.get("/{goal_id}", response_model=GoalWithCalculations)
 def get_goal_details(
     goal_id: int,
-    current_user: User = Depends(get_current_user),
+    user_id: int = 1,
     db: Session = Depends(get_db)
 ):
     """Get detailed information about a specific goal"""
@@ -35,25 +35,17 @@ def get_goal_details(
             detail="Goal not found"
         )
     
-    # Verify the goal belongs to the current user
-    goal_obj = db.query(Goal).filter(Goal.goal_id == goal_id).first()
-    if goal_obj.created_by_user_id != current_user.user_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to access this goal"
-        )
-    
     return goal
 
 @router.post("/", response_model=GoalResponse, status_code=status.HTTP_201_CREATED)
 def create_goal(
     goal_data: GoalCreate,
-    current_user: User = Depends(get_current_user),
+    user_id: int = 1,
     db: Session = Depends(get_db)
 ):
     """Create a new financial goal"""
     new_goal = Goal(
-        created_by_user_id=current_user.user_id,
+        created_by_user_id=user_id,
         beneficiary_member_id=goal_data.beneficiary_member_id,
         goal_name=goal_data.goal_name,
         target_amount=goal_data.target_amount,
@@ -73,7 +65,7 @@ def create_goal(
 def update_goal(
     goal_id: int,
     goal_data: GoalCreate,
-    current_user: User = Depends(get_current_user),
+    user_id: int = 1,
     db: Session = Depends(get_db)
 ):
     """Update an existing goal"""
@@ -83,12 +75,6 @@ def update_goal(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Goal not found"
-        )
-    
-    if goal.created_by_user_id != current_user.user_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to update this goal"
         )
     
     # Update fields
@@ -108,7 +94,7 @@ def update_goal(
 @router.delete("/{goal_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_goal(
     goal_id: int,
-    current_user: User = Depends(get_current_user),
+    user_id: int = 1,
     db: Session = Depends(get_db)
 ):
     """Delete a goal"""
@@ -120,12 +106,6 @@ def delete_goal(
             detail="Goal not found"
         )
     
-    if goal.created_by_user_id != current_user.user_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to delete this goal"
-        )
-    
     db.delete(goal)
     db.commit()
     
@@ -134,13 +114,12 @@ def delete_goal(
 @router.get("/{goal_id}/history", response_model=List[GoalHistoryResponse])
 def get_goal_history(
     goal_id: int,
-    current_user: User = Depends(get_current_user),
+    user_id: int = 1,
     db: Session = Depends(get_db)
 ):
     """Get historical tracking data for a goal"""
-    # Verify goal belongs to user
     goal = db.query(Goal).filter(Goal.goal_id == goal_id).first()
-    if not goal or goal.created_by_user_id != current_user.user_id:
+    if not goal:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Goal not found"
@@ -153,13 +132,12 @@ def get_goal_history(
 def run_simulation(
     goal_id: int,
     simulation_request: SimulationRequest,
-    current_user: User = Depends(get_current_user),
+    user_id: int = 1,
     db: Session = Depends(get_db)
 ):
     """Run Monte Carlo simulation for a goal"""
-    # Verify goal belongs to user
     goal = db.query(Goal).filter(Goal.goal_id == goal_id).first()
-    if not goal or goal.created_by_user_id != current_user.user_id:
+    if not goal:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Goal not found"

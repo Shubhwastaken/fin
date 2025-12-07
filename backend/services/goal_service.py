@@ -58,12 +58,12 @@ class GoalService:
         )
         
         return {
-            'present_value': round(present_value, 2),
-            'current_allocation': round(current_allocation, 2),
-            'shortfall': round(shortfall, 2),
-            'required_monthly_sip': round(required_sip, 2),
+            'present_value': Decimal(str(round(present_value, 2))),
+            'current_allocation': Decimal(str(round(current_allocation, 2))),
+            'shortfall': Decimal(str(round(shortfall, 2))),
+            'required_monthly_sip': Decimal(str(round(required_sip, 2))),
             'status': status,
-            'success_probability': success_probability
+            'success_probability': Decimal(str(success_probability)) if success_probability is not None else None
         }
     
     def get_goal_current_allocation(self, goal_id: int) -> float:
@@ -107,11 +107,12 @@ class GoalService:
         return {
             'goal_id': goal.goal_id,
             'goal_name': goal.goal_name,
-            'target_amount': float(goal.target_amount),
+            'target_amount': goal.target_amount,
             'years_until_due': goal.years_until_due,
             'horizon': goal.horizon.value,
-            'expected_return': float(goal.expected_return) if goal.expected_return else None,
-            'volatility': float(goal.volatility) if goal.volatility else None,
+            'expected_return': goal.expected_return,
+            'volatility': goal.volatility,
+            'created_by_user_id': goal.created_by_user_id,
             'beneficiary_name': beneficiary.name if beneficiary else None,
             'beneficiary_member_id': goal.beneficiary_member_id,
             'created_at': goal.created_at,

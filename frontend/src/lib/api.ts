@@ -40,15 +40,15 @@ export const dashboardAPI = {
 
 // Goals APIs
 export const goalsAPI = {
-  getAllGoals: () => api.get('/api/goals/'),
-  getGoalDetails: (goalId: number) => api.get(`/api/goals/${goalId}`),
-  createGoal: (goalData: any) => api.post('/api/goals/', goalData),
-  updateGoal: (goalId: number, goalData: any) => api.put(`/api/goals/${goalId}`, goalData),
-  deleteGoal: (goalId: number) => api.delete(`/api/goals/${goalId}`),
-  getGoalHistory: (goalId: number) => api.get(`/api/goals/${goalId}/history`),
+  getAllGoals: () => api.get('/api/goals/?user_id=1'),
+  getGoalDetails: (goalId: number) => api.get(`/api/goals/${goalId}?user_id=1`),
+  createGoal: (goalData: any) => api.post('/api/goals/?user_id=1', goalData),
+  updateGoal: (goalId: number, goalData: any) => api.put(`/api/goals/${goalId}?user_id=1`, goalData),
+  deleteGoal: (goalId: number) => api.delete(`/api/goals/${goalId}?user_id=1`),
+  getGoalHistory: (goalId: number) => api.get(`/api/goals/${goalId}/history?user_id=1`),
   runSimulation: (goalId: number, numSimulations = 5000) =>
-    api.post(`/api/goals/${goalId}/simulate`, { goal_id: goalId, num_simulations: numSimulations }),
-  getRescueStrategies: (goalId: number) => api.get(`/api/goals/${goalId}/rescue-strategies`),
+    api.post(`/api/goals/${goalId}/simulate?user_id=1`, { goal_id: goalId, num_simulations: numSimulations }),
+  getRescueStrategies: (goalId: number) => api.get(`/api/goals/${goalId}/rescue-strategies?user_id=1`),
 };
 
 // Portfolio APIs

@@ -16,6 +16,7 @@ export default function PortfolioPage() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('stocks');
   const [selectedMember, setSelectedMember] = useState<string>('all');
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [summary, setSummary] = useState({
     total_current: 0,
     total_invested: 0,
@@ -41,7 +42,20 @@ export default function PortfolioPage() {
   };
 
   useEffect(() => {
+    // Load dark mode preference
+    const darkMode = localStorage.getItem('darkMode') === 'true';
+    setIsDarkMode(darkMode);
+    
+    // Listen for dark mode changes
+    const handleDarkModeChange = () => {
+      const darkMode = localStorage.getItem('darkMode') === 'true';
+      setIsDarkMode(darkMode);
+    };
+    window.addEventListener('darkModeChange', handleDarkModeChange);
+    
     fetchPortfolioData(false, true); // Load without prices first
+    
+    return () => window.removeEventListener('darkModeChange', handleDarkModeChange);
   }, []);
 
   useEffect(() => {
@@ -242,24 +256,25 @@ export default function PortfolioPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {loading ? (
-        <div className="flex items-center justify-center min-h-[calc(100vh-3rem)]">
-          <div className="text-xl text-gray-600">Loading portfolio...</div>
-        </div>
-      ) : (
-      <div className="max-w-7xl mx-auto">
+    <div className={isDarkMode ? 'dark' : ''}>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 transition-colors">
+        {loading ? (
+          <div className="flex items-center justify-center min-h-[calc(100vh-3rem)]">
+            <div className="text-xl text-gray-600 dark:text-gray-300">Loading portfolio...</div>
+          </div>
+        ) : (
+        <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex-1 flex items-center gap-4">
             <Link
               href="/dashboard"
-              className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+              className="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition"
               title="Back to Dashboard"
             >
-              <Home className="w-5 h-5 text-gray-700" />
+              <Home className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900">Investment Portfolio</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Investment Portfolio</h1>
             <div className="flex items-center gap-3 mt-2">
               {activeTab === 'stocks' && (
                 <span className={`text-xs px-2 py-1 rounded-full ${
@@ -271,7 +286,7 @@ export default function PortfolioPage() {
                 </span>
               )}
               {lastUpdated && (
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   Last updated: {lastUpdated.toLocaleTimeString()}
                 </span>
               )}
@@ -311,22 +326,22 @@ export default function PortfolioPage() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm text-gray-600 mb-1">Current Value</p>
-            <p className="text-3xl font-bold text-gray-900">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Value</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white">
               {formatCurrency(total_current)}
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm text-gray-600 mb-1">Invested Amount</p>
-            <p className="text-3xl font-bold text-gray-600">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Invested Amount</p>
+            <p className="text-3xl font-bold text-gray-600 dark:text-gray-300">
               {formatCurrency(total_invested)}
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm text-gray-600 mb-1">Total Gain/Loss</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Gain/Loss</p>
             <p className={`text-3xl font-bold ${total_gain >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {formatCurrency(total_gain)}
             </p>
@@ -337,16 +352,16 @@ export default function PortfolioPage() {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
-          <div className="flex border-b border-gray-200 overflow-x-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md mb-6 overflow-hidden">
+          <div className="flex border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as TabType)}
                 className={`px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors ${
                   activeTab === tab.id
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-gray-700'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
               >
                 {tab.label}
@@ -363,18 +378,18 @@ export default function PortfolioPage() {
         </div>
 
         {/* Investments Table */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-300">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-50 dark:bg-gray-900 border-b dark:border-gray-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Investment
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Asset Class
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Member
                   </th>
                   {activeTab === 'stocks' && (
@@ -402,15 +417,15 @@ export default function PortfolioPage() {
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Gain/Loss
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Return %
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredInvestments.length === 0 ? (
                   <tr>
-                    <td colSpan={activeTab === 'stocks' || activeTab === 'mutual-funds' ? 8 : 7} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={activeTab === 'stocks' || activeTab === 'mutual-funds' ? 8 : 7} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                       <div className="flex flex-col items-center gap-2">
                         <p className="text-lg">No investments found in this category</p>
                         <Link
@@ -424,12 +439,12 @@ export default function PortfolioPage() {
                   </tr>
                 ) : (
                   filteredInvestments.map((investment) => (
-                  <tr key={investment.investment_id} className="hover:bg-gray-50">
+                  <tr key={investment.investment_id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{investment.name}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{investment.name}</div>
                         {investment.symbol && (
-                          <div className="text-sm text-gray-500">{investment.symbol}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{investment.symbol}</div>
                         )}
                       </div>
                     </td>
@@ -438,7 +453,7 @@ export default function PortfolioPage() {
                         {investment.asset_class_name}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                       {investment.member_name}
                     </td>
                     {activeTab === 'stocks' && (
@@ -446,7 +461,7 @@ export default function PortfolioPage() {
                         <div className="flex flex-col items-end">
                           {investment.market_price ? (
                             <>
-                              <span className="text-sm font-bold text-gray-900">
+                              <span className="text-sm font-bold text-gray-900 dark:text-white">
                                 {formatCurrency(investment.market_price)}
                               </span>
                               {investment.price_change_percent !== undefined && (
@@ -469,7 +484,7 @@ export default function PortfolioPage() {
                         <div className="flex flex-col items-end">
                           {investment.market_price ? (
                             <>
-                              <span className="text-sm font-bold text-gray-900">
+                              <span className="text-sm font-bold text-gray-900 dark:text-white">
                                 {formatCurrency(investment.market_price)}
                               </span>
                               {investment.price_change_percent !== undefined && (
@@ -487,10 +502,10 @@ export default function PortfolioPage() {
                         </div>
                       </td>
                     )}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
                       {formatCurrency(investment.invested_value)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white text-right">
                       {formatCurrency(investment.current_value)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
@@ -519,6 +534,7 @@ export default function PortfolioPage() {
         </div>
       </div>
       )}
+    </div>
     </div>
   );
 }
